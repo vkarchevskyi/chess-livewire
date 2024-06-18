@@ -9,7 +9,7 @@ use Livewire\Component;
 
 class Piece extends Component
 {
-    public PieceDTO $pieceDTO;
+    public ?PieceDTO $pieceDTO;
 
     public function render()
     {

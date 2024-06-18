@@ -1,5 +1,3 @@
-@use('Spatie\LaravelData\Optional')
-
 @props([
     'cellDTO',
 ])
@@ -16,8 +14,11 @@
     ])
 >
     <div class="mx-auto flex justify-center">
-        @if(!($cellDTO->pieceDTO instanceof Optional))
-            <livewire:chessboard.piece :pieceDTO="$cellDTO->pieceDTO"/>
+        @if(isset($cellDTO->pieceDTO))
+            <livewire:chessboard.piece
+                :pieceDTO="$cellDTO->pieceDTO"
+                :key="'chess-piece-' . $cellDTO->pieceDTO->isWhite . '-' . $cellDTO->pieceDTO->pieceType->value"
+            />
         @endif
     </div>
 </div>

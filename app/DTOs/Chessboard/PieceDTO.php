@@ -14,8 +14,8 @@ class PieceDTO extends Data implements Wireable
     use WireableData;
 
     public function __construct(
-        public bool $isWhite,
-        public PieceType $pieceType
+        public readonly bool $isWhite,
+        public readonly PieceType $pieceType
     ) {
     }
 }
