@@ -12,6 +12,8 @@
         'bg-gray-100' => $cellDTO->isWhite,
         'bg-blue-500' => !$cellDTO->isWhite,
     ])
+
+    :class="selectedCell?.x === {{ $cellDTO->x }} && selectedCell?.y === {{ $cellDTO->y }} ? '!bg-green-300' : ''"
 >
     <div class="mx-auto flex justify-center">
         @if(isset($cellDTO->pieceDTO))

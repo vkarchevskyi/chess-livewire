@@ -1,5 +1,6 @@
 @props([
-    'field'
+    'field',
+    'isWhiteMove',
 ])
 
 <div id="chessboard" class="" x-data="{ selectedCell: null }">
@@ -10,7 +11,7 @@
                     if (selectedCell && !(selectedCell.x === {{ $x }} && selectedCell.y === {{ $y }})) {
                         $wire.makeMove(selectedCell.x, selectedCell.y, {{ $x }}, {{ $y }});
                         selectedCell = null;
-                    } else if (@js(isset($field[$y][$x]->pieceDTO))) {
+                    } else if (@js(isset($field[$y][$x]->pieceDTO)) && @js($field[$y][$x]->pieceDTO?->isWhite === $isWhiteMove)) {
                         selectedCell = { x: {{ $x }}, y: {{ $y }} };
                     }"
                 >

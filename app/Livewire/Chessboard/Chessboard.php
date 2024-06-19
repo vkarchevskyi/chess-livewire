@@ -7,6 +7,7 @@ namespace App\Livewire\Chessboard;
 use App\DTOs\Chessboard\CellDTO;
 use App\Services\Chessboard\GetInitializedBoardService;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class Chessboard extends Component
@@ -20,6 +21,9 @@ class Chessboard extends Component
      */
     public array $field;
 
+    #[Locked]
+    public bool $isWhiteMove = true;
+
     public function mount(GetInitializedBoardService $getInitializedBoardService): void
     {
         $this->field = $getInitializedBoardService->run();
@@ -31,13 +35,17 @@ class Chessboard extends Component
             ($fromY < 0 || $fromY >= self::Y_SIZE) ||
             ($toX < 0 || $toX >= self::X_SIZE) ||
             ($toY < 0 || $toY >= self::Y_SIZE) ||
-            !isset($this->field[$fromY][$fromX]->pieceDTO)
+            !isset($this->field[$fromY][$fromX]->pieceDTO) ||
+            $this->field[$fromY][$fromX]->pieceDTO->isWhite !== $this->isWhiteMove
         ) {
+            $this->skipRender();
             return;
         }
 
         $this->field[$toY][$toX]->pieceDTO = $this->field[$fromY][$fromX]->pieceDTO;
         $this->field[$fromY][$fromX]->pieceDTO = null;
+
+        $this->isWhiteMove = !$this->isWhiteMove;
     }
 
     public function render(): View

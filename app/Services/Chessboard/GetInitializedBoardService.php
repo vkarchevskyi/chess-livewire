@@ -28,7 +28,7 @@ readonly class GetInitializedBoardService
         for ($y = 0; $y < $this->xSize; $y++) {
             $field[$y] = [];
             for ($x = 0; $x < $this->ySize; $x++) {
-                $field[$y][$x] = CellDTO::from(['isWhite' => ($y * $this->ySize + $x) % 2 === $y % 2]);
+                $field[$y][$x] = new CellDTO($x, $y, ($y * $this->ySize + $x) % 2 === $y % 2);
             }
         }
 

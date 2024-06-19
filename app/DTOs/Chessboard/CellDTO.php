@@ -13,8 +13,10 @@ class CellDTO extends Data implements Wireable
     use WireableData;
 
     public function __construct(
+        public readonly int $x,
+        public readonly int $y,
         public readonly bool $isWhite,
-        public ?PieceDTO $pieceDTO,
+        public ?PieceDTO $pieceDTO = null,
     ) {
     }
 }
