@@ -46,6 +46,8 @@ class Chessboard extends Component
         $this->field[$fromY][$fromX]->pieceDTO = null;
 
         $this->isWhiteMove = !$this->isWhiteMove;
+
+        $this->dispatch('next-move', isWhiteMove: $this->isWhiteMove);
     }
 
     public function render(): View
