@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Chessboard;
 
 use App\DTOs\Chessboard\CellDTO;
+use App\Services\Chessboard\ChessMoveService;
 use App\Services\Chessboard\GetInitializedBoardService;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Locked;
@@ -31,12 +32,19 @@ class Chessboard extends Component
 
     public function makeMove(int $fromX, int $fromY, int $toX, int $toY): void
     {
-        if (($fromX < 0 || $fromX >= self::X_SIZE) ||
+        /** @var ChessMoveService $chessMoveService */
+        $chessMoveService = app(ChessMoveService::class, ['field' => $this->field]);
+
+        if (
+            ($fromX < 0 || $fromX >= self::X_SIZE) ||
             ($fromY < 0 || $fromY >= self::Y_SIZE) ||
             ($toX < 0 || $toX >= self::X_SIZE) ||
             ($toY < 0 || $toY >= self::Y_SIZE) ||
+
             !isset($this->field[$fromY][$fromX]->pieceDTO) ||
-            $this->field[$fromY][$fromX]->pieceDTO->isWhite !== $this->isWhiteMove
+            $this->field[$fromY][$fromX]->pieceDTO->isWhite !== $this->isWhiteMove ||
+
+            !$chessMoveService->isMoveValid($this->field[$fromY][$fromX], $this->field[$toY][$toX])
         ) {
             $this->skipRender();
             return;
