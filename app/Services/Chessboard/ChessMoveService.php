@@ -6,6 +6,7 @@ namespace App\Services\Chessboard;
 
 use App\DTOs\Chessboard\CellDTO;
 use App\Enums\Chessboard\PieceType;
+use Illuminate\Support\Collection;
 
 readonly class ChessMoveService
 {
@@ -31,19 +32,21 @@ readonly class ChessMoveService
 
     /**
      * @param CellDTO $cellDTO
-     * @return CellDTO[]
+     * @return Collection<int, CellDTO>
      */
-    public function getAvailableMoves(CellDTO $cellDTO): array
+    public function getAvailableMoves(CellDTO $cellDTO): Collection
     {
-        return match ($cellDTO->pieceDTO?->pieceType) {
-            PieceType::PAWN => $this->getPawnValidMovesService->run($this->field, $cellDTO),
-            PieceType::KNIGHT => $this->getKnightValidMovesService->run($this->field, $cellDTO),
-            PieceType::BISHOP => $this->getBishopValidMovesService->run($this->field, $cellDTO),
-            PieceType::ROOK => $this->getRookValidMovesService->run($this->field, $cellDTO),
-            PieceType::QUEEN => $this->getQueenValidMovesService->run($this->field, $cellDTO),
-            PieceType::KING => $this->getKingValidMovesService->run($this->field, $cellDTO),
-            default => [],
-        };
+        return collect(
+            match ($cellDTO->pieceDTO?->pieceType) {
+                PieceType::PAWN => $this->getPawnValidMovesService->run($this->field, $cellDTO),
+                PieceType::KNIGHT => $this->getKnightValidMovesService->run($this->field, $cellDTO),
+                PieceType::BISHOP => $this->getBishopValidMovesService->run($this->field, $cellDTO),
+                PieceType::ROOK => $this->getRookValidMovesService->run($this->field, $cellDTO),
+                PieceType::QUEEN => $this->getQueenValidMovesService->run($this->field, $cellDTO),
+                PieceType::KING => $this->getKingValidMovesService->run($this->field, $cellDTO),
+                default => [],
+            }
+        );
     }
 
     /**

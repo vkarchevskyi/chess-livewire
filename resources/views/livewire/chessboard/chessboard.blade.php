@@ -1,14 +1,16 @@
+@use('App\DTOs\Chessboard\CellDTO')
+
 @props([
     'field',
     'isWhiteMove',
 ])
 
 @php
-    /** @var \App\DTOs\Chessboard\CellDTO[][] $field */
+    /** @var CellDTO[][] $field */
     /** @var bool $isWhiteMove */
 @endphp
 
-<div id="chessboard" class="" x-data="cell" @next-move="nextMove($event)">
+<div id="chessboard">
     <div class="flex justify-center items-center max-w-lg">
         @for($y = 0; $y < 8; $y++)
             <div class="w-16 text-center">
@@ -21,15 +23,30 @@
         <div class="flex justify-start">
             <div class="flex max-w-lg">
                 @for($x = 0; $x < 8; $x++)
-                    <div @click="select(@js($x), @js($y), @js($field[$y][$x]->pieceDTO?->isWhite))">
+                    <div
+                        wire:click="selectCell({{ $x }}, {{ $y }})"
+                    >
                         @php
-                            $cellKey = "chess-cell-$y-$x-"
-                                . $field[$y][$x]->pieceDTO?->isWhite
-                                . $field[$y][$x]->pieceDTO?->pieceType->value;
+                            $cellKey = sprintf(
+                                'chess-cell-%d-%d-%d-%s-%s-%s',
+                                $y,
+                                $x,
+                                $field[$y][$x]->pieceDTO?->isWhite,
+                                $field[$y][$x]->pieceDTO?->pieceType->value,
+                                $selectedCell?->x,
+                                $selectedCell?->y
+                            );
+
+                            $isAvailableForMove = $availableMoves
+                                ->filter(fn (CellDTO $cellDTO) => $cellDTO->x === $x && $cellDTO->y === $y)
+                                ->count() >= 1;
                         @endphp
+
                         <livewire:chessboard.cell
                             :cellDTO="$field[$y][$x]"
                             :key="$cellKey"
+                            :isSelected="$selectedCell?->x === $x && $selectedCell?->y === $y"
+                            :isAvailableForMove="$isAvailableForMove"
                         />
                     </div>
                 @endfor
@@ -39,25 +56,3 @@
         </div>
     @endfor
 </div>
-
-@script
-<script>
-    Alpine.data('cell', () => ({
-        selectedCell: null,
-        isWhiteMove: @js($isWhiteMove),
-
-        select(x, y, pieceColor) {
-            if (this.selectedCell && !(this.selectedCell.x === x && this.selectedCell.y === y)) {
-                $wire.makeMove(this.selectedCell.x, this.selectedCell.y, x, y);
-                this.selectedCell = null;
-            } else if (pieceColor === this.isWhiteMove) {
-                this.selectedCell = {x: x, y: y};
-            }
-        },
-
-        nextMove(event) {
-            this.isWhiteMove = event.detail.isWhiteMove;
-        }
-    }))
-</script>
-@endscript

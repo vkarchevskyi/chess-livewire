@@ -14,6 +14,10 @@ class Cell extends Component
     #[Locked]
     public CellDTO $cellDTO;
 
+    public bool $isSelected;
+
+    public bool $isAvailableForMove;
+
     public function render(): View
     {
         return view('livewire.chessboard.cell');
