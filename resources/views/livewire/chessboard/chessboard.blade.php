@@ -4,7 +4,7 @@
 ])
 
 @php
-    /** @var array<array<\App\DTOs\Chessboard\CellDTO>> $field */
+    /** @var \App\DTOs\Chessboard\CellDTO[][] $field */
     /** @var bool $isWhiteMove */
 @endphp
 

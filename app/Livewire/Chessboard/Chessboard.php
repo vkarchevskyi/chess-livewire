@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Chessboard;
 
 use App\DTOs\Chessboard\CellDTO;
+use App\Services\Chessboard\CheckCoordinatesValidityService;
 use App\Services\Chessboard\ChessMoveService;
 use App\Services\Chessboard\GetInitializedBoardService;
 use Illuminate\Contracts\View\View;
@@ -13,17 +14,20 @@ use Livewire\Component;
 
 class Chessboard extends Component
 {
-    public const int X_SIZE = 8;
-
-    public const int Y_SIZE = 8;
+    protected CheckCoordinatesValidityService $checkCoordinatesValidityService;
 
     /**
-     * @var array<array<CellDTO>>
+     * @var CellDTO[][]
      */
     public array $field;
 
     #[Locked]
     public bool $isWhiteMove = true;
+
+    public function boot(): void
+    {
+        $this->checkCoordinatesValidityService = app(CheckCoordinatesValidityService::class);
+    }
 
     public function mount(GetInitializedBoardService $getInitializedBoardService): void
     {
@@ -36,10 +40,8 @@ class Chessboard extends Component
         $chessMoveService = app(ChessMoveService::class, ['field' => $this->field]);
 
         if (
-            ($fromX < 0 || $fromX >= self::X_SIZE) ||
-            ($fromY < 0 || $fromY >= self::Y_SIZE) ||
-            ($toX < 0 || $toX >= self::X_SIZE) ||
-            ($toY < 0 || $toY >= self::Y_SIZE) ||
+            !$this->checkCoordinatesValidityService->run($fromX, $fromY) ||
+            !$this->checkCoordinatesValidityService->run($toX, $toY) ||
 
             !isset($this->field[$fromY][$fromX]->pieceDTO) ||
             $this->field[$fromY][$fromX]->pieceDTO->isWhite !== $this->isWhiteMove ||

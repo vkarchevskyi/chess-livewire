@@ -7,6 +7,7 @@ namespace App\DTOs\Chessboard;
 use Livewire\Wireable;
 use Spatie\LaravelData\Concerns\WireableData;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 class CellDTO extends Data implements Wireable
 {
@@ -18,5 +19,13 @@ class CellDTO extends Data implements Wireable
         public readonly bool $isWhite,
         public ?PieceDTO $pieceDTO = null,
     ) {
+    }
+
+    public static function rules(ValidationContext $context): array
+    {
+        return [
+            'x' => ['required', 'integer', 'min:0', 'max:8'],
+            'y' => ['required', 'integer', 'min:0', 'max:8'],
+        ];
     }
 }

@@ -11,53 +11,45 @@ use App\Enums\Chessboard\PieceType;
 readonly class GetInitializedBoardService
 {
     /**
-     * @param int $xSize Field's width
-     * @param int $ySize Field's height
-     */
-    public function __construct(private int $xSize = 8, private int $ySize = 8)
-    {
-    }
-
-    /**
-     * @return array<array<CellDTO>>
+     * @return CellDTO[][]
      */
     public function run(): array
     {
         $field = [];
 
-        for ($y = 0; $y < $this->xSize; $y++) {
+        for ($y = 0; $y < 8; $y++) {
             $field[$y] = [];
-            for ($x = 0; $x < $this->ySize; $x++) {
-                $field[$y][$x] = new CellDTO($x, $y, ($y * $this->ySize + $x) % 2 !== $y % 2);
+            for ($x = 0; $x < 8; $x++) {
+                $field[$y][$x] = new CellDTO($x, $y, ($y * 8 + $x) % 2 !== $y % 2);
             }
         }
 
-        foreach ([0 + 1, $this->ySize - 2] as $index => $y) {
-            for ($x = 0; $x < $this->xSize; $x++) {
+        foreach ([1, 8 - 2] as $index => $y) {
+            for ($x = 0; $x < 8; $x++) {
                 $field[$y][$x]->pieceDTO = new PieceDTO($index === 0, PieceType::PAWN);
             }
         }
 
         $field[0][0]->pieceDTO = new PieceDTO(true, PieceType::ROOK);
-        $field[0][$this->xSize - 1]->pieceDTO = new PieceDTO(true, PieceType::ROOK);
-        $field[$this->ySize - 1][0]->pieceDTO = new PieceDTO(false, PieceType::ROOK);
-        $field[$this->ySize - 1][$this->xSize - 1]->pieceDTO = new PieceDTO(false, PieceType::ROOK);
+        $field[0][8 - 1]->pieceDTO = new PieceDTO(true, PieceType::ROOK);
+        $field[8 - 1][0]->pieceDTO = new PieceDTO(false, PieceType::ROOK);
+        $field[8 - 1][8 - 1]->pieceDTO = new PieceDTO(false, PieceType::ROOK);
 
-        $field[0][0 + 1]->pieceDTO = new PieceDTO(true, PieceType::KNIGHT);
-        $field[0][$this->xSize - 2]->pieceDTO = new PieceDTO(true, PieceType::KNIGHT);
-        $field[$this->ySize - 1][0 + 1]->pieceDTO = new PieceDTO(false, PieceType::KNIGHT);
-        $field[$this->ySize - 1][$this->xSize - 2]->pieceDTO = new PieceDTO(false, PieceType::KNIGHT);
+        $field[0][1]->pieceDTO = new PieceDTO(true, PieceType::KNIGHT);
+        $field[0][8 - 2]->pieceDTO = new PieceDTO(true, PieceType::KNIGHT);
+        $field[8 - 1][1]->pieceDTO = new PieceDTO(false, PieceType::KNIGHT);
+        $field[8 - 1][8 - 2]->pieceDTO = new PieceDTO(false, PieceType::KNIGHT);
 
-        $field[0][0 + 2]->pieceDTO = new PieceDTO(true, PieceType::BISHOP);
-        $field[0][$this->xSize - 3]->pieceDTO = new PieceDTO(true, PieceType::BISHOP);
-        $field[$this->ySize - 1][0 + 2]->pieceDTO = new PieceDTO(false, PieceType::BISHOP);
-        $field[$this->ySize - 1][$this->xSize - 3]->pieceDTO = new PieceDTO(false, PieceType::BISHOP);
+        $field[0][2]->pieceDTO = new PieceDTO(true, PieceType::BISHOP);
+        $field[0][8 - 3]->pieceDTO = new PieceDTO(true, PieceType::BISHOP);
+        $field[8 - 1][2]->pieceDTO = new PieceDTO(false, PieceType::BISHOP);
+        $field[8 - 1][8 - 3]->pieceDTO = new PieceDTO(false, PieceType::BISHOP);
 
-        $field[0][0 + 3]->pieceDTO = new PieceDTO(true, PieceType::QUEEN);
-        $field[$this->ySize - 1][0 + 3]->pieceDTO = new PieceDTO(false, PieceType::QUEEN);
+        $field[0][3]->pieceDTO = new PieceDTO(true, PieceType::QUEEN);
+        $field[8 - 1][3]->pieceDTO = new PieceDTO(false, PieceType::QUEEN);
 
-        $field[0][0 + 4]->pieceDTO = new PieceDTO(true, PieceType::KING);
-        $field[$this->ySize - 1][0 + 4]->pieceDTO = new PieceDTO(false, PieceType::KING);
+        $field[0][4]->pieceDTO = new PieceDTO(true, PieceType::KING);
+        $field[8 - 1][4]->pieceDTO = new PieceDTO(false, PieceType::KING);
 
         return $field;
     }
