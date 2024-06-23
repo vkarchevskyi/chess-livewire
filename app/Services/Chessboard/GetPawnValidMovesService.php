@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Services\Chessboard;
 
 use App\DTOs\Chessboard\CellDTO;
-use App\Livewire\Chessboard\Chessboard;
 
 readonly class GetPawnValidMovesService
 {
     /**
      * @param CellDTO[][] $field
      * @param CellDTO $cellDTO
-     * @return array
+     * @return CellDTO[]
      */
     public function run(array $field, CellDTO $cellDTO): array
     {
@@ -41,7 +40,7 @@ readonly class GetPawnValidMovesService
         }
 
         foreach ([$cellDTO->x - 1, $cellDTO->x + 1] as $x) {
-            if ($x < 0 || $x >= Chessboard::X_SIZE) {
+            if ($x < 0 || $x >= 8) {
                 continue;
             }
 

@@ -21,6 +21,10 @@ class CellDTO extends Data implements Wireable
     ) {
     }
 
+    /**
+     * @param ValidationContext $context
+     * @return array<string, string[]>
+     */
     public static function rules(ValidationContext $context): array
     {
         return [

@@ -10,18 +10,18 @@
 
 <div id="chessboard" class="" x-data="cell" @next-move="nextMove($event)">
     <div class="flex justify-center items-center max-w-lg">
-        @for($y = 0; $y < self::X_SIZE; $y++)
+        @for($y = 0; $y < 8; $y++)
             <div class="w-16 text-center">
                 {{ chr(ord('A') + $y) }}
             </div>
         @endfor
     </div>
 
-    @for($y = 0; $y < self::X_SIZE; $y++)
+    @for($y = 0; $y < 8; $y++)
         <div class="flex justify-start">
             <div class="flex max-w-lg">
-                @for($x = 0; $x < self::Y_SIZE; $x++)
-                    <div @click="select({{ $x }}, {{ $y }}, @js($field[$y][$x]->pieceDTO?->isWhite))">
+                @for($x = 0; $x < 8; $x++)
+                    <div @click="select(@js($x), @js($y), @js($field[$y][$x]->pieceDTO?->isWhite))">
                         @php
                             $cellKey = "chess-cell-$y-$x-"
                                 . $field[$y][$x]->pieceDTO?->isWhite
