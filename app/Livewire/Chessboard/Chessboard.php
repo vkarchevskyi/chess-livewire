@@ -25,6 +25,9 @@ class Chessboard extends Component
     #[Locked]
     public ?CellDTO $selectedCell = null;
 
+    /**
+     * @var Collection<int, CellDTO>
+     */
     #[Locked]
     public Collection $availableMoves;
 
@@ -91,7 +94,7 @@ class Chessboard extends Component
     private function handleEmptySelectedCell(ChessMoveService $chessMoveService, int $x, int $y): void
     {
         $containsPiece = isset($this->field[$y][$x]->pieceDTO);
-        $containsPieceOfOppositeSide = $this->field[$y][$x]->pieceDTO->isWhite !== $this->isWhiteMove;
+        $containsPieceOfOppositeSide = $this->field[$y][$x]->pieceDTO?->isWhite !== $this->isWhiteMove;
 
         if (!$containsPiece || $containsPieceOfOppositeSide) {
             $this->skipRender();
