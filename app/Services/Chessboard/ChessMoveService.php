@@ -12,10 +12,20 @@ readonly class ChessMoveService
     /**
      * @param CellDTO[][] $field
      * @param GetPawnValidMovesService $getPawnValidMovesService
+     * @param GetBishopValidMovesService $getBishopValidMovesService
+     * @param GetKnightValidMovesService $getKnightValidMovesService
+     * @param GetRookValidMovesService $getRookValidMovesService
+     * @param GetQueenValidMovesService $getQueenValidMovesService
+     * @param GetKingValidMovesService $getKingValidMovesService
      */
     public function __construct(
         private array $field,
         private GetPawnValidMovesService $getPawnValidMovesService,
+        private GetBishopValidMovesService $getBishopValidMovesService,
+        private GetKnightValidMovesService $getKnightValidMovesService,
+        private GetRookValidMovesService $getRookValidMovesService,
+        private GetQueenValidMovesService $getQueenValidMovesService,
+        private GetKingValidMovesService $getKingValidMovesService,
     ) {
     }
 
@@ -27,6 +37,11 @@ readonly class ChessMoveService
     {
         return match ($cellDTO->pieceDTO?->pieceType) {
             PieceType::PAWN => $this->getPawnValidMovesService->run($this->field, $cellDTO),
+            PieceType::KNIGHT => $this->getKnightValidMovesService->run($this->field, $cellDTO),
+            PieceType::BISHOP => $this->getBishopValidMovesService->run($this->field, $cellDTO),
+            PieceType::ROOK => $this->getRookValidMovesService->run($this->field, $cellDTO),
+            PieceType::QUEEN => $this->getQueenValidMovesService->run($this->field, $cellDTO),
+            PieceType::KING => $this->getKingValidMovesService->run($this->field, $cellDTO),
             default => [],
         };
     }
