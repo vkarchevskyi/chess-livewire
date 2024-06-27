@@ -70,7 +70,7 @@ class Chessboard extends Component
             $this->field[$y][$x]->pieceDTO->isWhite === $this->selectedCell->pieceDTO?->isWhite
         ) {
             $this->selectedCell = $this->field[$y][$x];
-            $this->availableMoves = $chessMoveService->getAvailableMoves($this->selectedCell);
+            $this->availableMoves = $chessMoveService->getValidMoves($this->selectedCell);
             return;
         }
 
@@ -82,6 +82,7 @@ class Chessboard extends Component
             return;
         }
 
+        // TODO: need to change for custom moves (castle, el passant)
         $this->field[$y][$x]->pieceDTO = $this->field[$fromY][$fromX]->pieceDTO;
         $this->field[$fromY][$fromX]->pieceDTO = null;
 
@@ -100,7 +101,7 @@ class Chessboard extends Component
             $this->skipRender();
         } else {
             $this->selectedCell = $this->field[$y][$x];
-            $this->availableMoves = $chessMoveService->getAvailableMoves($this->selectedCell);
+            $this->availableMoves = $chessMoveService->getValidMoves($this->selectedCell);
         }
     }
 }

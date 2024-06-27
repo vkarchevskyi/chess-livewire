@@ -7,6 +7,7 @@ namespace App\Services\Chessboard;
 use App\DTOs\Chessboard\CellDTO;
 use App\Enums\Chessboard\PieceType;
 use Illuminate\Support\Collection;
+use LogicException;
 
 readonly class ChessMoveService
 {
@@ -34,17 +35,27 @@ readonly class ChessMoveService
      * @param CellDTO $cellDTO
      * @return Collection<int, CellDTO>
      */
-    public function getAvailableMoves(CellDTO $cellDTO): Collection
+    public function getValidMoves(CellDTO $cellDTO): Collection
     {
-        return collect(
-            match ($cellDTO->pieceDTO?->pieceType) {
-                PieceType::PAWN => $this->getPawnValidMovesService->run($this->field, $cellDTO),
-                PieceType::KNIGHT => $this->getKnightValidMovesService->run($this->field, $cellDTO),
-                PieceType::BISHOP => $this->getBishopValidMovesService->run($this->field, $cellDTO),
-                PieceType::ROOK => $this->getRookValidMovesService->run($this->field, $cellDTO),
-                PieceType::QUEEN => $this->getQueenValidMovesService->run($this->field, $cellDTO),
-                PieceType::KING => $this->getKingValidMovesService->run($this->field, $cellDTO),
-                default => [],
+        return collect($this->getAvailableMoves($this->field, $cellDTO))->filter(
+            function (CellDTO $move) use ($cellDTO): bool {
+                $tempField = [];
+                $decodedField = json_decode(json_encode($this->field), true);
+
+                for ($y = 0; $y < 8; $y++) {
+                    $tempField[$y] = [];
+                    for ($x = 0; $x < 8; $x++) {
+                        $tempField[$y][$x] = CellDTO::from($decodedField[$y][$x]);
+                    }
+                }
+
+                // TODO: need to change for custom moves (castle, el passant)
+                $tempField[$move->y][$move->x]->pieceDTO = $tempField[$cellDTO->y][$cellDTO->x]->pieceDTO;
+                $tempField[$cellDTO->y][$cellDTO->x]->pieceDTO = null;
+
+                $king = $this->findKingCell($tempField, $cellDTO->pieceDTO?->isWhite);
+
+                return !$this->isCellIsUnderAttack($tempField, $king);
             }
         );
     }
@@ -56,7 +67,7 @@ readonly class ChessMoveService
      */
     public function isMoveValid(CellDTO $from, CellDTO $to): bool
     {
-        $cells = $this->getAvailableMoves($from);
+        $cells = $this->getValidMoves($from);
 
         foreach ($cells as $cell) {
             if ($cell->x === $to->x && $cell->y === $to->y) {
@@ -65,5 +76,64 @@ readonly class ChessMoveService
         }
 
         return false;
+    }
+
+    /**
+     * @param CellDTO[][] $field
+     * @param bool $whiteKing
+     * @return CellDTO
+     */
+    private function findKingCell(array $field, bool $whiteKing): CellDTO
+    {
+        for ($y = 0; $y < 8; $y++) {
+            for ($x = 0; $x < 8; $x++) {
+                $piece = $field[$y][$x]->pieceDTO;
+
+                if ($piece?->pieceType === PieceType::KING && $piece?->isWhite === $whiteKing) {
+                    return $field[$y][$x];
+                }
+            }
+        }
+
+        throw new LogicException('There are no ' . ($whiteKing ? 'white' : 'black') . ' king on the field');
+    }
+
+    /**
+     * @param CellDTO[][] $field
+     * @param CellDTO $cellDTO
+     * @return bool
+     */
+    private function isCellIsUnderAttack(array $field, CellDTO $cellDTO): bool
+    {
+        for ($y = 0; $y < 8; $y++) {
+            for ($x = 0; $x < 8; $x++) {
+                $availableMoves = $this->getAvailableMoves($field, $field[$y][$x]);
+                foreach ($availableMoves as $availableMove) {
+                    if ($availableMove->x === $cellDTO->x && $availableMove->y === $cellDTO->y) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param CellDTO[][] $field
+     * @param CellDTO $cellDTO
+     * @return CellDTO[]
+     */
+    private function getAvailableMoves(array $field, CellDTO $cellDTO): array
+    {
+        return match ($cellDTO->pieceDTO?->pieceType) {
+            PieceType::PAWN => $this->getPawnValidMovesService->run($field, $cellDTO),
+            PieceType::KNIGHT => $this->getKnightValidMovesService->run($field, $cellDTO),
+            PieceType::BISHOP => $this->getBishopValidMovesService->run($field, $cellDTO),
+            PieceType::ROOK => $this->getRookValidMovesService->run($field, $cellDTO),
+            PieceType::QUEEN => $this->getQueenValidMovesService->run($field, $cellDTO),
+            PieceType::KING => $this->getKingValidMovesService->run($field, $cellDTO),
+            default => [],
+        };
     }
 }
