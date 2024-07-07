@@ -53,9 +53,7 @@ readonly class ChessMoveService
                 $tempField[$move->y][$move->x]->pieceDTO = $tempField[$cellDTO->y][$cellDTO->x]->pieceDTO;
                 $tempField[$cellDTO->y][$cellDTO->x]->pieceDTO = null;
 
-                $king = $this->findKingCell($tempField, $cellDTO->pieceDTO?->isWhite);
-
-                return !$this->isCellIsUnderAttack($tempField, $king);
+                return !$this->isKingUnderCheck($cellDTO->pieceDTO?->isWhite, $tempField);
             }
         );
     }
@@ -76,6 +74,45 @@ readonly class ChessMoveService
         }
 
         return false;
+    }
+
+    /**
+     * @param bool $whiteKing
+     * @param array|null $field
+     * @return bool
+     */
+    public function isKingUnderCheck(bool $whiteKing, ?array $field = null): bool
+    {
+        if (is_null($field)) {
+            $field = $this->field;
+        }
+
+        return $this->isCellIsUnderAttack($field, $this->findKingCell($field, $whiteKing));
+    }
+
+    public function isMated(bool $sideColor): bool
+    {
+        /** @var CellDTO[] $pieces */
+        $pieces = [];
+
+        /** @var CellDTO[] $validMoves */
+        $validMoves = [];
+
+        for ($y = 0; $y < 8; $y++) {
+            for ($x = 0; $x < 8; $x++) {
+                $pieces[] = $this->field[$y][$x];
+            }
+        }
+
+        for ($i = 0; $i < 8 * 8; $i++) {
+            if ($pieces[$i]->pieceDTO?->isWhite !== $sideColor) {
+                continue;
+            }
+
+            array_push($validMoves, ...$this->getValidMoves($pieces[$i]));
+        }
+
+        return count($validMoves) === 0;
     }
 
     /**

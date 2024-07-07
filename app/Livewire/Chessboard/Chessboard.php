@@ -23,7 +23,7 @@ class Chessboard extends Component
     public array $field;
 
     #[Locked]
-    public ?CellDTO $selectedCell = null;
+    public ?CellDTO $selectedCell;
 
     /**
      * @var Collection<int, CellDTO>
@@ -32,17 +32,19 @@ class Chessboard extends Component
     public Collection $availableMoves;
 
     #[Locked]
-    public bool $isWhiteMove = true;
+    public bool $isWhiteMove;
+
+    #[Locked]
+    public ?bool $isWhiteWin;
 
     public function boot(): void
     {
         $this->checkCoordinatesValidityService = app(CheckCoordinatesValidityService::class);
     }
 
-    public function mount(GetInitializedBoardService $getInitializedBoardService): void
+    public function mount(): void
     {
-        $this->availableMoves = collect();
-        $this->field = $getInitializedBoardService->run();
+        $this->initBoard();
     }
 
     public function render(): View
@@ -55,7 +57,7 @@ class Chessboard extends Component
         /** @var ChessMoveService $chessMoveService */
         $chessMoveService = app(ChessMoveService::class, ['field' => $this->field]);
 
-        if (!$this->checkCoordinatesValidityService->run($x, $y)) {
+        if (!is_null($this->isWhiteWin) || !$this->checkCoordinatesValidityService->run($x, $y)) {
             $this->skipRender();
             return;
         }
@@ -90,6 +92,34 @@ class Chessboard extends Component
         $this->selectedCell = null;
 
         $this->isWhiteMove = !$this->isWhiteMove;
+
+        if ($chessMoveService->isMated($this->isWhiteMove)) {
+            $this->isWhiteWin = !$this->isWhiteMove;
+        }
+    }
+
+    public function reinitBoard(): void
+    {
+        if (!is_null($this->isWhiteWin)) {
+            $this->initBoard();
+        }
+    }
+
+    /**
+     * This method was made private for security reasons.
+     *
+     * @return void
+     */
+    private function initBoard(): void
+    {
+        /** @var GetInitializedBoardService $getInitializedBoardService */
+        $getInitializedBoardService = app(GetInitializedBoardService::class);
+
+        $this->availableMoves = collect();
+        $this->field = $getInitializedBoardService->run();
+        $this->isWhiteWin = null;
+        $this->isWhiteMove = true;
+        $this->selectedCell = null;
     }
 
     private function handleEmptySelectedCell(ChessMoveService $chessMoveService, int $x, int $y): void
