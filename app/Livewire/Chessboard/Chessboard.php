@@ -57,12 +57,12 @@ class Chessboard extends Component
         /** @var ChessMoveService $chessMoveService */
         $chessMoveService = app(ChessMoveService::class, ['field' => $this->field]);
 
-        if (!is_null($this->isWhiteWin) || !$this->checkCoordinatesValidityService->run($x, $y)) {
+        if (isset($this->isWhiteWin) || !$this->checkCoordinatesValidityService->run($x, $y)) {
             $this->skipRender();
             return;
         }
 
-        if (!$this->selectedCell) {
+        if (!isset($this->selectedCell)) {
             $this->handleEmptySelectedCell($chessMoveService, $x, $y);
             return;
         }
@@ -100,7 +100,7 @@ class Chessboard extends Component
 
     public function reinitBoard(): void
     {
-        if (!is_null($this->isWhiteWin)) {
+        if (isset($this->isWhiteWin)) {
             $this->initBoard();
         }
     }
