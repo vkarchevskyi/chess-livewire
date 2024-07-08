@@ -20,6 +20,7 @@ class Chessboard extends Component
     /**
      * @var CellDTO[][]
      */
+    #[Locked]
     public array $field;
 
     #[Locked]
