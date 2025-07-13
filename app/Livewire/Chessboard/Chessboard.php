@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Livewire\Chessboard;
 
 use App\DTOs\Chessboard\CellDTO;
+use App\DTOs\Chessboard\PieceDTO;
+use App\Enums\Chessboard\PieceType;
 use App\Services\Chessboard\CheckCoordinatesValidityService;
 use App\Services\Chessboard\ChessMoveService;
+use App\Services\Chessboard\ExtraRules\CheckPromotionService;
 use App\Services\Chessboard\GetInitializedBoardService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
@@ -15,8 +18,6 @@ use Livewire\Component;
 
 class Chessboard extends Component
 {
-    private CheckCoordinatesValidityService $checkCoordinatesValidityService;
-
     /**
      * @var CellDTO[][]
      */
@@ -38,10 +39,11 @@ class Chessboard extends Component
     #[Locked]
     public ?bool $isWhiteWin;
 
-    public function boot(): void
-    {
-        $this->checkCoordinatesValidityService = app(CheckCoordinatesValidityService::class);
-    }
+    #[Locked]
+    public bool $isWhiteCastlingPossible;
+
+    #[Locked]
+    public bool $isBlackCastlingPossible;
 
     public function mount(): void
     {
@@ -53,12 +55,17 @@ class Chessboard extends Component
         return view('livewire.chessboard.chessboard');
     }
 
-    public function selectCell(int $x, int $y): void
-    {
+    public function selectCell(
+        int $x,
+        int $y,
+        CheckPromotionService $checkPromotionService,
+        CheckCoordinatesValidityService $checkCoordinatesValidityService,
+        ?string $pieceType = null,
+    ): void {
         /** @var ChessMoveService $chessMoveService */
         $chessMoveService = app(ChessMoveService::class, ['field' => $this->field]);
 
-        if (isset($this->isWhiteWin) || !$this->checkCoordinatesValidityService->run($x, $y)) {
+        if (isset($this->isWhiteWin) || !$checkCoordinatesValidityService->run($x, $y)) {
             $this->skipRender();
             return;
         }
@@ -85,8 +92,20 @@ class Chessboard extends Component
             return;
         }
 
-        // TODO: need to change for custom moves (castle, el passant)
-        $this->field[$y][$x]->pieceDTO = $this->field[$fromY][$fromX]->pieceDTO;
+        $piece = $this->field[$fromY][$fromX]->pieceDTO;
+        if ($checkPromotionService->run($piece, $y)) {
+            if (is_null($pieceType)) {
+                $this->dispatch('show-promotion-modal', x: $x, y: $y);
+                return;
+            }
+
+            $this->field[$y][$x]->pieceDTO = new PieceDTO($piece->isWhite, PieceType::from($pieceType));
+        } else {
+            // TODO: need to change for custom moves (castle, el passant)
+            $this->field[$y][$x]->pieceDTO = $this->field[$fromY][$fromX]->pieceDTO;
+        }
+
+        // Remove piece from previous cell
         $this->field[$fromY][$fromX]->pieceDTO = null;
 
         $this->availableMoves = collect();
@@ -121,6 +140,8 @@ class Chessboard extends Component
         $this->isWhiteWin = null;
         $this->isWhiteMove = true;
         $this->selectedCell = null;
+        $this->isWhiteCastlingPossible = true;
+        $this->isBlackCastlingPossible = true;
     }
 
     private function handleEmptySelectedCell(ChessMoveService $chessMoveService, int $x, int $y): void

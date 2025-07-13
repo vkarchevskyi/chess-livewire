@@ -15,8 +15,8 @@ readonly class GetPawnValidMovesService
      */
     public function run(array $field, CellDTO $cellDTO): array
     {
-        // TODO: add promotion
-        // TODO: Add el passant
+        // TODO: Add el passant.
+        // This method should have an information about previous move in order to implement this.
 
         /** @var CellDTO[] $moves */
         $moves = [];
