@@ -1,5 +1,3 @@
-@use('App\Enums\Chessboard\PieceType')
-
 @props([
     'pieceDTO'
 ])
@@ -10,17 +8,6 @@
 
 <div class="text-6xl">
     <p>
-        @php
-            $pieceChar = match ($pieceDTO->pieceType) {
-                PieceType::PAWN => $pieceDTO->isWhite ? '♙' : '♟︎',
-                PieceType::BISHOP => $pieceDTO->isWhite ? '♗' : '♝',
-                PieceType::KNIGHT => $pieceDTO->isWhite ? '♘' : '♞',
-                PieceType::ROOK => $pieceDTO->isWhite ? '♖' : '♜',
-                PieceType::QUEEN => $pieceDTO->isWhite ? '♕' : '♛',
-                PieceType::KING => $pieceDTO->isWhite ? '♔' : '♚',
-            }
-        @endphp
-
-        {{ $pieceChar }}
+        {{ $pieceDTO->pieceType->getView($pieceDTO->isWhite) }}
     </p>
 </div>
