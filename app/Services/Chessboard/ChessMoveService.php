@@ -41,21 +41,14 @@ readonly class ChessMoveService
         return collect($this->getAvailableMoves($this->field, $cellDTO))->filter(
             function (Cell $move) use ($cellDTO): bool {
                 $tempField = [];
-                $decodedField = json_decode(json_encode($this->field), true);
 
                 for ($y = 0; $y < 8; $y++) {
                     $tempField[$y] = [];
                     for ($x = 0; $x < 8; $x++) {
-                        $piece = $decodedField[$y][$x]['piece'];
+                        $cell = $this->field[$y][$x];
+                        $piece = $cell->piece ? new Piece($cell->piece->isWhite, $cell->piece->type) : null;
 
-                        $tempField[$y][$x] = new Cell(
-                            $decodedField[$y][$x]['x'],
-                            $decodedField[$y][$x]['y'],
-                            $decodedField[$y][$x]['isWhite'],
-                            $piece
-                                ? new Piece($piece['isWhite'], PieceType::from($piece['type']))
-                                : null
-                        );
+                        $tempField[$y][$x] = new Cell($cell->x, $cell->y, $cell->isWhite, $piece);
                     }
                 }
 

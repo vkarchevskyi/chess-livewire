@@ -25,7 +25,7 @@ final readonly class Piece implements Wireable
 
     public static function fromLivewire($value): static
     {
-        return new static(
+        return new Piece(
             $value['isWhite'],
             PieceType::from($value['type']),
         );
