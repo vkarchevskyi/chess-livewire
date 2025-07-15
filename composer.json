@@ -9,7 +9,6 @@
         "laravel/framework": "^12.20",
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^3.6.3",
-        "spatie/laravel-data": "^4.17",
         "webmozart/assert": "^1.11"
     },
     "require-dev": {

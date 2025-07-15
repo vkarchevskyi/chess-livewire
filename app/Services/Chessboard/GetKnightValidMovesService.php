@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Chessboard;
 
 use App\Data\Chessboard\Cell;
-use App\Data\Chessboard\DirectionData;
+use App\Data\Chessboard\Direction;
 
 readonly class GetKnightValidMovesService
 {
@@ -21,8 +21,7 @@ readonly class GetKnightValidMovesService
      */
     public function run(array $field, Cell $selectedCell): array
     {
-        /** @var DirectionData[] $directions */
-        $directions = DirectionData::collect(config('chess.move_directions.knight'));
+        $directions = Direction::collect(config('chess.move_directions.knight'));
 
         return $this->findFigureMovesPerDirectionsService->run($field, $selectedCell, $directions, false);
     }

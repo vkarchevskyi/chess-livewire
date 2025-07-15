@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Chessboard;
 
 use App\Data\Chessboard\Cell;
-use App\Data\Chessboard\DirectionData;
+use App\Data\Chessboard\Direction;
 
 readonly class FindFigureMovesPerDirectionsService
 {
@@ -16,7 +16,7 @@ readonly class FindFigureMovesPerDirectionsService
     /**
      * @param Cell[][] $field
      * @param Cell $selectedCell
-     * @param DirectionData[] $directions
+     * @param list<Direction> $directions
      * @param bool $useLoop
      * @return Cell[]
      */
