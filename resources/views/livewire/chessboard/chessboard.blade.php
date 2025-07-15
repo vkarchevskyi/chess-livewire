@@ -20,7 +20,7 @@
 
 <div class="flex justify-between">
     <div id="chessboard" class="relative">
-        <div class="flex justify-center items-center max-w-lg">
+        <div class="flex justify-center items-center max-w-lg" wire:ignore>
             @for($x = 0; $x < 8; $x++)
                 <div class="w-16 text-center" wire:key="chessboard-column-identifier-{{ $x }}">
                     {{ chr(ord('A') + $x) }}
@@ -64,6 +64,7 @@
                     <p
                         class="w-8 ml-2 self-center text-center"
                         wire:key="chessboard-row-identifier-{{ $y }}"
+                        wire:ignore
                     >
                         {{ $y + 1 }}
                     </p>
@@ -78,7 +79,7 @@
             x-show="show"
             x-on:click.outside="show = false;"
             x-on:show-promotion-modal.window="x = $event.detail.x; y = $event.detail.y; show = true;"
-            wire:key="promotion-modal"
+            wire:ignore
         >
             <h4 class="text-center">Choose your piece type</h4>
 
