@@ -6,6 +6,7 @@ namespace App\Data\Chessboard;
 
 use App\Enums\Chessboard\PieceType;
 use Livewire\Wireable;
+use Webmozart\Assert\Assert;
 
 final readonly class Piece implements Wireable
 {
@@ -15,6 +16,9 @@ final readonly class Piece implements Wireable
     ) {
     }
 
+    /**
+     * @return array<string, bool|string>
+     */
     public function toLivewire(): array
     {
         return [
@@ -23,11 +27,17 @@ final readonly class Piece implements Wireable
         ];
     }
 
-    public static function fromLivewire($value): static
+    /**
+     * @param array<string, mixed> $value
+     */
+    public static function fromLivewire($value): Piece
     {
-        return new Piece(
-            $value['isWhite'],
-            PieceType::from($value['type']),
-        );
+        $isWhite = $value['isWhite'] ?? null;
+        $type = $value['type'] ?? null;
+
+        Assert::boolean($isWhite);
+        Assert::isInstanceOf($type, PieceType::class);
+
+        return new Piece($isWhite, $type);
     }
 }

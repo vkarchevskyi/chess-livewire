@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Data\Chessboard;
 
 use Livewire\Wireable;
+use Webmozart\Assert\Assert;
 
 final class Cell implements Wireable
 {
@@ -16,6 +17,9 @@ final class Cell implements Wireable
     ) {
     }
 
+    /**
+     * @return array<string, int|bool|array<string, bool|string>>
+     */
     public function toLivewire(): array
     {
         $cellData = [
@@ -34,21 +38,24 @@ final class Cell implements Wireable
         return $cellData;
     }
 
-    public static function fromLivewire($value): static
+    /**
+     * @param array<string, mixed> $value
+     */
+    public static function fromLivewire($value): Cell
     {
         $piece = null;
-        if (isset($value['piece'])) {
-            $piece = new Piece(
-                $value['piece']['isWhite'],
-                $value['piece']['type'],
-            );
+        if (isset($value['piece']) && is_array($value['piece'])) {
+            $piece = Piece::fromLivewire($value['piece']);
         }
 
-        return new Cell(
-            $value['x'],
-            $value['y'],
-            $value['isWhite'],
-            $piece
-        );
+        $x = $value['x'];
+        $y = $value['y'];
+        $isWhite = $value['isWhite'];
+
+        Assert::integer($x);
+        Assert::integer($y);
+        Assert::boolean($isWhite);
+
+        return new Cell($x, $y, $isWhite, $piece);
     }
 }
