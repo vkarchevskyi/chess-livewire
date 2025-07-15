@@ -1,4 +1,4 @@
-@use('App\DTOs\Chessboard\CellDTO;')
+@use('App\Data\Chessboard\Cell;')
 @use('App\Enums\Chessboard\PieceType')
 @use('Illuminate\Support\Collection')
 
@@ -11,10 +11,10 @@
 ])
 
 @php
-    /** @var CellDTO[][] $field */
+    /** @var Cell[][] $field */
     /** @var bool $isWhiteMove */
-    /** @var ?CellDTO $selectedCell */
-    /** @var Collection<int, CellDTO> $availableMoves */
+    /** @var ?Cell $selectedCell */
+    /** @var Collection<int, Cell> $availableMoves */
     /** @var bool $isWhiteMove */
 @endphp
 
@@ -41,19 +41,19 @@
                                     'chess-cell-%d-%d-%d-%s-%s-%s',
                                     $y,
                                     $x,
-                                    $field[$y][$x]->pieceDTO?->isWhite,
-                                    $field[$y][$x]->pieceDTO?->pieceType->value,
+                                    $field[$y][$x]->piece?->isWhite,
+                                    $field[$y][$x]->piece?->type->value,
                                     $selectedCell?->x,
                                     $selectedCell?->y
                                 );
 
                                 $isAvailableForMove = $availableMoves
-                                    ->filter(fn (CellDTO $cellDTO) => $cellDTO->x === $x && $cellDTO->y === $y)
+                                    ->filter(fn (Cell $cellDTO) => $cellDTO->x === $x && $cellDTO->y === $y)
                                     ->count() >= 1;
                             @endphp
 
                             <livewire:chessboard.cell
-                                :cellDTO="$field[$y][$x]"
+                                :cell="$field[$y][$x]"
                                 :key="$cellKey"
                                 :isSelected="$selectedCell?->x === $x && $selectedCell?->y === $y"
                                 :isAvailableForMove="$isAvailableForMove"

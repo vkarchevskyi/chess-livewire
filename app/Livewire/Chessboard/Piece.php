@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Livewire\Chessboard;
 
-use App\DTOs\Chessboard\PieceDTO;
+use App\Data\Chessboard\Piece as PieceData;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class Piece extends Component
 {
-    public ?PieceDTO $pieceDTO;
+    public ?PieceData $piece;
 
     public function render(): View
     {

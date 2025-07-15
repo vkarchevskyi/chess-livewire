@@ -4,35 +4,35 @@ declare(strict_types=1);
 
 namespace App\Services\Chessboard;
 
-use App\DTOs\Chessboard\CellDTO;
+use App\Data\Chessboard\Cell;
 
 readonly class GetPawnValidMovesService
 {
     /**
-     * @param CellDTO[][] $field
-     * @param CellDTO $cellDTO
-     * @return CellDTO[]
+     * @param Cell[][] $field
+     * @param Cell $cellDTO
+     * @return Cell[]
      */
-    public function run(array $field, CellDTO $cellDTO): array
+    public function run(array $field, Cell $cellDTO): array
     {
         // TODO: Add el passant.
         // This method should have an information about previous move in order to implement this.
 
-        /** @var CellDTO[] $moves */
+        /** @var Cell[] $moves */
         $moves = [];
-        $direction = $cellDTO->pieceDTO?->isWhite ? 1 : -1;
+        $direction = $cellDTO->piece?->isWhite ? 1 : -1;
 
-        if (!isset($field[$cellDTO->y + $direction]) || !isset($cellDTO->pieceDTO)) {
+        if (!isset($field[$cellDTO->y + $direction]) || !isset($cellDTO->piece)) {
             return [];
         }
 
-        if (!$field[$cellDTO->y + $direction][$cellDTO->x]->pieceDTO) {
+        if (!$field[$cellDTO->y + $direction][$cellDTO->x]->piece) {
             $moves[] = $field[$cellDTO->y + $direction][$cellDTO->x];
 
-            if ($cellDTO->pieceDTO->isWhite && $cellDTO->y === 1 || !$cellDTO->pieceDTO->isWhite && $cellDTO->y === 6) {
+            if ($cellDTO->piece->isWhite && $cellDTO->y === 1 || !$cellDTO->piece->isWhite && $cellDTO->y === 6) {
                 if (
                     isset($field[$cellDTO->y + 2 * $direction]) &&
-                    !$field[$cellDTO->y + 2 * $direction][$cellDTO->x]->pieceDTO
+                    !$field[$cellDTO->y + 2 * $direction][$cellDTO->x]->piece
                 ) {
                     $moves[] = $field[$cellDTO->y + 2 * $direction][$cellDTO->x];
                 }
@@ -44,8 +44,8 @@ readonly class GetPawnValidMovesService
                 continue;
             }
 
-            $piece = $field[$cellDTO->y + $direction][$x]->pieceDTO;
-            if ($piece && $piece->isWhite !== $cellDTO->pieceDTO->isWhite) {
+            $piece = $field[$cellDTO->y + $direction][$x]->piece;
+            if ($piece && $piece->isWhite !== $cellDTO->piece->isWhite) {
                 $moves[] = $field[$cellDTO->y + $direction][$x];
             }
         }

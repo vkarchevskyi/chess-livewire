@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Chessboard;
 
-use App\DTOs\Chessboard\CellDTO;
+use App\Data\Chessboard\Cell;
+use App\Data\Chessboard\Piece;
 use App\Enums\Chessboard\PieceType;
 use Illuminate\Support\Collection;
 use LogicException;
@@ -12,7 +13,7 @@ use LogicException;
 readonly class ChessMoveService
 {
     /**
-     * @param CellDTO[][] $field
+     * @param Cell[][] $field
      * @param GetPawnValidMovesService $getPawnValidMovesService
      * @param GetBishopValidMovesService $getBishopValidMovesService
      * @param GetKnightValidMovesService $getKnightValidMovesService
@@ -32,38 +33,47 @@ readonly class ChessMoveService
     }
 
     /**
-     * @param CellDTO $cellDTO
-     * @return Collection<int, CellDTO>
+     * @param Cell $cellDTO
+     * @return Collection<int, Cell>
      */
-    public function getValidMoves(CellDTO $cellDTO): Collection
+    public function getValidMoves(Cell $cellDTO): Collection
     {
         return collect($this->getAvailableMoves($this->field, $cellDTO))->filter(
-            function (CellDTO $move) use ($cellDTO): bool {
+            function (Cell $move) use ($cellDTO): bool {
                 $tempField = [];
                 $decodedField = json_decode(json_encode($this->field), true);
 
                 for ($y = 0; $y < 8; $y++) {
                     $tempField[$y] = [];
                     for ($x = 0; $x < 8; $x++) {
-                        $tempField[$y][$x] = CellDTO::from($decodedField[$y][$x]);
+                        $piece = $decodedField[$y][$x]['piece'];
+
+                        $tempField[$y][$x] = new Cell(
+                            $decodedField[$y][$x]['x'],
+                            $decodedField[$y][$x]['y'],
+                            $decodedField[$y][$x]['isWhite'],
+                            $piece
+                                ? new Piece($piece['isWhite'], PieceType::from($piece['type']))
+                                : null
+                        );
                     }
                 }
 
                 // TODO: need to change for custom moves (castle, el passant)
-                $tempField[$move->y][$move->x]->pieceDTO = $tempField[$cellDTO->y][$cellDTO->x]->pieceDTO;
-                $tempField[$cellDTO->y][$cellDTO->x]->pieceDTO = null;
+                $tempField[$move->y][$move->x]->piece = $tempField[$cellDTO->y][$cellDTO->x]->piece;
+                $tempField[$cellDTO->y][$cellDTO->x]->piece = null;
 
-                return !$this->isKingUnderCheck($cellDTO->pieceDTO?->isWhite, $tempField);
+                return !$this->isKingUnderCheck($cellDTO->piece?->isWhite, $tempField);
             }
         );
     }
 
     /**
-     * @param CellDTO $from
-     * @param CellDTO $to
+     * @param Cell $from
+     * @param Cell $to
      * @return bool
      */
-    public function isMoveValid(CellDTO $from, CellDTO $to): bool
+    public function isMoveValid(Cell $from, Cell $to): bool
     {
         $cells = $this->getValidMoves($from);
 
@@ -92,10 +102,10 @@ readonly class ChessMoveService
 
     public function isMated(bool $sideColor): bool
     {
-        /** @var CellDTO[] $pieces */
+        /** @var Cell[] $pieces */
         $pieces = [];
 
-        /** @var CellDTO[] $validMoves */
+        /** @var Cell[] $validMoves */
         $validMoves = [];
 
         for ($y = 0; $y < 8; $y++) {
@@ -105,7 +115,7 @@ readonly class ChessMoveService
         }
 
         for ($i = 0; $i < 8 * 8; $i++) {
-            if ($pieces[$i]->pieceDTO?->isWhite !== $sideColor) {
+            if ($pieces[$i]->piece?->isWhite !== $sideColor) {
                 continue;
             }
 
@@ -116,17 +126,17 @@ readonly class ChessMoveService
     }
 
     /**
-     * @param CellDTO[][] $field
+     * @param Cell[][] $field
      * @param bool $whiteKing
-     * @return CellDTO
+     * @return Cell
      */
-    private function findKingCell(array $field, bool $whiteKing): CellDTO
+    private function findKingCell(array $field, bool $whiteKing): Cell
     {
         for ($y = 0; $y < 8; $y++) {
             for ($x = 0; $x < 8; $x++) {
-                $piece = $field[$y][$x]->pieceDTO;
+                $piece = $field[$y][$x]->piece;
 
-                if ($piece?->pieceType === PieceType::KING && $piece?->isWhite === $whiteKing) {
+                if ($piece?->type === PieceType::KING && $piece?->isWhite === $whiteKing) {
                     return $field[$y][$x];
                 }
             }
@@ -136,11 +146,11 @@ readonly class ChessMoveService
     }
 
     /**
-     * @param CellDTO[][] $field
-     * @param CellDTO $cellDTO
+     * @param Cell[][] $field
+     * @param Cell $cellDTO
      * @return bool
      */
-    private function isCellIsUnderAttack(array $field, CellDTO $cellDTO): bool
+    private function isCellIsUnderAttack(array $field, Cell $cellDTO): bool
     {
         for ($y = 0; $y < 8; $y++) {
             for ($x = 0; $x < 8; $x++) {
@@ -157,13 +167,13 @@ readonly class ChessMoveService
     }
 
     /**
-     * @param CellDTO[][] $field
-     * @param CellDTO $cellDTO
-     * @return CellDTO[]
+     * @param Cell[][] $field
+     * @param Cell $cellDTO
+     * @return Cell[]
      */
-    private function getAvailableMoves(array $field, CellDTO $cellDTO): array
+    private function getAvailableMoves(array $field, Cell $cellDTO): array
     {
-        return match ($cellDTO->pieceDTO?->pieceType) {
+        return match ($cellDTO->piece?->type) {
             PieceType::PAWN => $this->getPawnValidMovesService->run($field, $cellDTO),
             PieceType::KNIGHT => $this->getKnightValidMovesService->run($field, $cellDTO),
             PieceType::BISHOP => $this->getBishopValidMovesService->run($field, $cellDTO),

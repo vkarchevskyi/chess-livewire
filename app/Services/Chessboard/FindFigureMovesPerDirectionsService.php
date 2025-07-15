@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Chessboard;
 
-use App\DTOs\Chessboard\CellDTO;
-use App\DTOs\Chessboard\DirectionDTO;
+use App\Data\Chessboard\Cell;
+use App\Data\Chessboard\DirectionData;
 
 readonly class FindFigureMovesPerDirectionsService
 {
@@ -14,13 +14,13 @@ readonly class FindFigureMovesPerDirectionsService
     }
 
     /**
-     * @param CellDTO[][] $field
-     * @param CellDTO $selectedCell
-     * @param DirectionDTO[] $directions
+     * @param Cell[][] $field
+     * @param Cell $selectedCell
+     * @param DirectionData[] $directions
      * @param bool $useLoop
-     * @return CellDTO[]
+     * @return Cell[]
      */
-    public function run(array $field, CellDTO $selectedCell, array $directions, bool $useLoop = true): array
+    public function run(array $field, Cell $selectedCell, array $directions, bool $useLoop = true): array
     {
         $list = [];
 
@@ -31,7 +31,7 @@ readonly class FindFigureMovesPerDirectionsService
             if (!$useLoop && $this->checkCoordinatesValidityService->run($x, $y)) {
                 $cell = $field[$y][$x];
 
-                if (!$cell->pieceDTO || $cell->pieceDTO->isWhite !== $selectedCell->pieceDTO?->isWhite) {
+                if (!$cell->piece || $cell->piece->isWhite !== $selectedCell->piece?->isWhite) {
                     $list[] = $cell;
                 }
                 continue;
@@ -40,8 +40,8 @@ readonly class FindFigureMovesPerDirectionsService
             while ($useLoop && $this->checkCoordinatesValidityService->run($x, $y)) {
                 $cell = $field[$y][$x];
 
-                if ($cell->pieceDTO) {
-                    if ($cell->pieceDTO->isWhite !== $selectedCell->pieceDTO?->isWhite) {
+                if ($cell->piece) {
+                    if ($cell->piece->isWhite !== $selectedCell->piece?->isWhite) {
                         $list[] = $cell;
                     }
 

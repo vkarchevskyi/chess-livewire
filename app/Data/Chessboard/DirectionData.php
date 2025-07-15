@@ -2,24 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\DTOs\Chessboard;
+namespace App\Data\Chessboard;
 
-use Livewire\Wireable;
-use Spatie\LaravelData\Concerns\WireableData;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
 
-class CellDTO extends Data implements Wireable
+class DirectionData extends Data
 {
-    use WireableData;
+    public int $x;
 
-    public function __construct(
-        public readonly int $x,
-        public readonly int $y,
-        public readonly bool $isWhite,
-        public ?PieceDTO $pieceDTO = null,
-    ) {
-    }
+    public int $y;
 
     /**
      * @param ValidationContext $context

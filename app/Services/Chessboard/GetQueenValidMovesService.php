@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Chessboard;
 
-use App\DTOs\Chessboard\CellDTO;
-use App\DTOs\Chessboard\DirectionDTO;
+use App\Data\Chessboard\Cell;
+use App\Data\Chessboard\DirectionData;
 
 readonly class GetQueenValidMovesService
 {
@@ -15,20 +15,20 @@ readonly class GetQueenValidMovesService
     }
 
     /**
-     * @param CellDTO[][] $field
-     * @param CellDTO $selectedCell
-     * @return CellDTO[]
+     * @param Cell[][] $field
+     * @param Cell $selectedCell
+     * @return Cell[]
      */
-    public function run(array $field, CellDTO $selectedCell): array
+    public function run(array $field, Cell $selectedCell): array
     {
-        /** @var DirectionDTO[] $loopedDirections */
-        $loopedDirections = DirectionDTO::collect([
+        /** @var DirectionData[] $loopedDirections */
+        $loopedDirections = DirectionData::collect([
             ...config('chess.move_directions.bishop'),
             ...config('chess.move_directions.rook')
         ]);
 
-        /** @var DirectionDTO[] $singleMoveDirections */
-        $singleMoveDirections = DirectionDTO::collect(config('chess.move_directions.king'));
+        /** @var DirectionData[] $singleMoveDirections */
+        $singleMoveDirections = DirectionData::collect(config('chess.move_directions.king'));
 
         return [
             ...$this->findFigureMovesPerDirectionsService->run($field, $selectedCell, $loopedDirections),

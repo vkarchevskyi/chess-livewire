@@ -1,13 +1,13 @@
 @props([
-    'pieceDTO'
+    'piece'
 ])
 
 @php
-    /** @var \App\DTOs\Chessboard\PieceDTO $pieceDTO */
+    /** @var \App\Data\Chessboard\Piece $piece */
 @endphp
 
 <div class="text-6xl">
     <p>
-        {{ $pieceDTO->pieceType->getView($pieceDTO->isWhite) }}
+        {{ $piece->type->getView($piece->isWhite) }}
     </p>
 </div>

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Livewire\Chessboard;
 
-use App\DTOs\Chessboard\CellDTO;
-use App\DTOs\Chessboard\PieceDTO;
+use App\Data\Chessboard\Cell;
+use App\Data\Chessboard\Piece;
 use App\Enums\Chessboard\PieceType;
 use App\Services\Chessboard\CheckCoordinatesValidityService;
 use App\Services\Chessboard\ChessMoveService;
@@ -19,16 +19,16 @@ use Livewire\Component;
 class Chessboard extends Component
 {
     /**
-     * @var CellDTO[][]
+     * @var Cell[][]
      */
     #[Locked]
     public array $field;
 
     #[Locked]
-    public ?CellDTO $selectedCell;
+    public ?Cell $selectedCell;
 
     /**
-     * @var Collection<int, CellDTO>
+     * @var Collection<int, Cell>
      */
     #[Locked]
     public Collection $availableMoves;
@@ -60,7 +60,7 @@ class Chessboard extends Component
         int $y,
         CheckPromotionService $checkPromotionService,
         CheckCoordinatesValidityService $checkCoordinatesValidityService,
-        ?string $pieceType = null,
+        ?string $type = null,
     ): void {
         /** @var ChessMoveService $chessMoveService */
         $chessMoveService = app(ChessMoveService::class, ['field' => $this->field]);
@@ -76,8 +76,8 @@ class Chessboard extends Component
         }
 
         if (
-            isset($this->field[$y][$x]->pieceDTO) &&
-            $this->field[$y][$x]->pieceDTO->isWhite === $this->selectedCell->pieceDTO?->isWhite
+            isset($this->field[$y][$x]->piece) &&
+            $this->field[$y][$x]->piece->isWhite === $this->selectedCell->piece?->isWhite
         ) {
             $this->selectedCell = $this->field[$y][$x];
             $this->availableMoves = $chessMoveService->getValidMoves($this->selectedCell);
@@ -92,21 +92,21 @@ class Chessboard extends Component
             return;
         }
 
-        $piece = $this->field[$fromY][$fromX]->pieceDTO;
+        $piece = $this->field[$fromY][$fromX]->piece;
         if ($checkPromotionService->run($piece, $y)) {
-            if (is_null($pieceType)) {
+            if (is_null($type)) {
                 $this->dispatch('show-promotion-modal', x: $x, y: $y);
                 return;
             }
 
-            $this->field[$y][$x]->pieceDTO = new PieceDTO($piece->isWhite, PieceType::from($pieceType));
+            $this->field[$y][$x]->piece = new Piece($piece->isWhite, PieceType::from($type));
         } else {
             // TODO: need to change for custom moves (castle, el passant)
-            $this->field[$y][$x]->pieceDTO = $this->field[$fromY][$fromX]->pieceDTO;
+            $this->field[$y][$x]->piece = $this->field[$fromY][$fromX]->piece;
         }
 
         // Remove piece from previous cell
-        $this->field[$fromY][$fromX]->pieceDTO = null;
+        $this->field[$fromY][$fromX]->piece = null;
 
         $this->availableMoves = collect();
         $this->selectedCell = null;
@@ -146,8 +146,8 @@ class Chessboard extends Component
 
     private function handleEmptySelectedCell(ChessMoveService $chessMoveService, int $x, int $y): void
     {
-        $containsPiece = isset($this->field[$y][$x]->pieceDTO);
-        $containsPieceOfOppositeSide = $this->field[$y][$x]->pieceDTO?->isWhite !== $this->isWhiteMove;
+        $containsPiece = isset($this->field[$y][$x]->piece);
+        $containsPieceOfOppositeSide = $this->field[$y][$x]->piece?->isWhite !== $this->isWhiteMove;
 
         if (!$containsPiece || $containsPieceOfOppositeSide) {
             $this->skipRender();

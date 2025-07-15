@@ -1,28 +1,28 @@
 @props([
-    'cellDTO',
+    'cell',
     'isSelected',
     'isAvailableForMove',
 ])
 
 @php
-    /** @var \App\DTOs\Chessboard\CellDTO $cellDTO */
+    /** @var \App\Data\Chessboard\Cell $cell */
 @endphp
 
 <div
     @class([
         'w-16 h-16',
-        'bg-gray-100' => $cellDTO->isWhite && !$isSelected && !$isAvailableForMove,
-        'bg-blue-500' => !$cellDTO->isWhite && !$isSelected && !$isAvailableForMove,
+        'bg-gray-100' => $cell->isWhite && !$isSelected && !$isAvailableForMove,
+        'bg-blue-500' => !$cell->isWhite && !$isSelected && !$isAvailableForMove,
         'bg-purple-300' => $isSelected,
-        'bg-green-300' => $isAvailableForMove && !isset($cellDTO->pieceDTO),
-        'bg-red-300' => $isAvailableForMove && $cellDTO->pieceDTO,
+        'bg-green-300' => $isAvailableForMove && !isset($cell->piece),
+        'bg-red-300' => $isAvailableForMove && $cell->piece,
     ])
 >
     <div class="mx-auto flex justify-center">
-        @if(isset($cellDTO->pieceDTO))
+        @if(isset($cell->piece))
             <livewire:chessboard.piece
-                :pieceDTO="$cellDTO->pieceDTO"
-                :key="'chess-piece-' . $cellDTO->pieceDTO->isWhite . '-' . $cellDTO->pieceDTO->pieceType->value"
+                :piece="$cell->piece"
+                :key="'chess-piece-' . $cell->piece->isWhite . '-' . $cell->piece->type->value"
             />
         @endif
     </div>
